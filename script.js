@@ -162,6 +162,63 @@ const cars = [
   },
 ];
 
+const list = document.querySelector(".js-list");
+
 // *******Варіант-1******* \\
 
+// function createMarkup(arr) {
+//   const markup = arr.map(({ id, model, type, price, img }) => {
+//     const liEl = document.createElement("li");
+//     const h2El = document.createElement("h2");
+//     const h3El = document.createElement("h3");
+//     const spanEl = document.createElement("span");
+//     const imgEl = document.createElement("img");
+
+//     liEl.dataset.carId = id;
+
+//     h2El.textContent = model;
+//     h3El.textContent = type;
+//     spanEl.textContent = price;
+
+//     imgEl.src = img;
+//     imgEl.alt = type;
+//     imgEl.width = 300;
+
+//     liEl.append(imgEl, h2El, h3El, spanEl);
+//     return liEl;
+//   });
+
+//   list.append(...markup);
+// }
+
+// createMarkup(cars);
+
 // *******Варіант-2******* \\
+
+// function createMarkup(arr) {
+//   const markup = arr
+//     .map(
+//       ({ id, model, type, price, img }) =>
+//         `<li data-car-id="${id}">
+//       <img src="${img}" alt="${type}" width="300">
+//       <h2>${model}</h2>
+//       <h3>${type}</h3>
+//       <span>${price}</span>
+//       </li>`
+//     )
+//     .join("");
+
+//   list.insertAdjacentHTML("beforeend", markup);
+// }
+
+// createMarkup(cars);
+
+//! ==============================
+
+const container = document.querySelector("#categories");
+console.log("Кількість li.item = ", container.children.length); // Кількість li.item =  3
+console.dir("Кількість li.item = ", container.children.length); // Кількість li.item =
+
+console.log(typeof container.children.length);
+
+
