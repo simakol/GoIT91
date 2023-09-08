@@ -74,13 +74,87 @@
 // Для виводу модального вікна застосуй бібліотеку basiclightbox
 // Після визначення переможця обов'язково підготуй ігрове поле для наступної гри
 
-// const combination = [
-//     [1, 2, 3],
-//     [4, 5, 6],
-//     [7, 8, 9],
-//     [1, 4, 7],
-//     [2, 5, 8],
-//     [1, 5, 9],
-//     [3, 5, 7],
-//     [3, 6, 9]
-// ]
+/*
+  1. створюємо два масиви для зберігання історії кожного гравця (Х О), задати поточного гравця через змінну
+  2. вішаємо обробник подій по кліку на батьківський елемент
+    2.1. робимо вихід із ф-ції обробника якщо клікнули за межі поля або клікнули по рамці або клікнули по клітинці яка вже зайнята
+    2.2. перевіряємо з яким гравцем я зараз взаємодію
+    якщо гравець Х: 
+      2.2.1. пушимо хід по айді в історію гравця Х
+      2.2.2. робимо перевірку, якщо кількість ходів більша або рівна 3, то робимо перевірку на переможця (чи моя історія є в комбінаціях виграшів, якщо є - виграв (winner = true), немає - поки не виграв (winner = false)), інакше - не переможець
+    якщо гравець О: 
+      2.2.3. пушимо хід по айді в історію гравця О
+      2.2.4. робимо перевірку, якщо кількість ходів більша або рівна 3, то робимо перевірку на переможця (чи моя історія є в комбінаціях виграшів, якщо є - виграв, немає - поки не виграв), інакше - не переможець
+    2.3. якщо winner true - то показуємо повідомлення про кінець гри і очищаємо поле
+    2.4. змінюємо гравця і задаємо контент клітинці
+*/
+
+const combinations = [
+  [1, 2, 3],
+  [4, 5, 6],
+  [7, 8, 9],
+  [1, 4, 7],
+  [2, 5, 8],
+  [1, 5, 9],
+  [3, 5, 7],
+  [3, 6, 9],
+];
+const historyX = [];
+const historyO = [];
+let player = "X";
+
+const content = document.querySelector(".content");
+
+createMarkup();
+
+content.addEventListener("click", handleClick);
+
+function handleClick(event) {
+  if (event.target === event.currentTarget || event.target.textContent) {
+    return;
+  }
+
+  let winner = false;
+  const id = Number(event.target.dataset.id);
+
+  if (player === "X") {
+    historyX.push(id);
+    winner = historyX.length >= 3 ? checkWinner(historyX) : false;
+  } else {
+    historyO.push(id);
+    winner = historyO.length >= 3 ? checkWinner(historyO) : false;
+  }
+
+  if (winner) {
+    const instance = basicLightbox.create(
+      `<div class="box"><h1>Player ${player} is winner</h1></div>`
+    );
+    instance.show();
+    resetGame();
+    return;
+  }
+
+  event.target.textContent = player;
+  player = player === "X" ? "O" : "X";
+}
+
+function resetGame() {
+  createMarkup();
+  player = "X";
+  historyX.splice(0);
+  historyO.splice(0);
+}
+
+function checkWinner(history) {
+  return combinations.some((combination) =>
+    combination.every((id) => history.includes(id))
+  );
+}
+
+function createMarkup() {
+  let markup = "";
+  for (let i = 1; i <= 9; i += 1) {
+    markup += `<div class="item" data-id="${i}"></div>`;
+  }
+  content.innerHTML = markup;
+}
