@@ -102,8 +102,57 @@
 // 3 Для додавання товару в кошик використовуй LS
 // 4 Під час додавання контролюй кількість доданих товарів, для цього створи в об'єкті доданого товару новий ключ quantity
 
-// Сторінка Checkout має:
-// 1 Список карток доданих товарів, кожна картка має містити кількість куплених товарів та загальна вартість за даний товар.
-// (приклад однієї картки https://prnt.sc/ssZA4rzw1x9L)
-// 2 Повідомлення про загальну вартість покупки, якщо кошик порожній, то повідомлення "Your basket is empty"
-// 3 Кнопку для очищення кошика, після натискання на неї всі товари видаляються, а користувача перенаправляємо на сторінку Home
+/*
+HOME:
+
+1. отримаємо список товарів з джсон файлу (import)
+2. створюємо розмітку і показуємо всі товари на екрані в контейнері
+3. вішаємо слухач подій на контейнер по кліку
+    3.1. якщо ми натиснули на щось, крім кнопки - робимо раннє повернення і виходимо з ф-ції
+    3.2. отримуємо айді товару та шукаємо його у масиві всіх товарів, для того, щоб отримати обʼєкт усього товару
+    3.3. перевірити локальний сховок, якщо там вже є масив з товарами - то перевіряємо чи є в цьому масиві такий же товар (по id), якщо є - збільшуємо кількість, якщо немає - додаємо новий. Якщо сховок пустий то створюємо пустий масив, додаємо туди товар з кількістю 1 і записуємо у сховок
+*/
+
+import products from "./products.json" assert { type: "json" };
+import createMarkup from "./templates/productTemplate.js";
+
+const PRODUCT_LS_KEY = "checkout";
+
+const refs = {
+  list: document.querySelector(".js-list"),
+};
+
+refs.list.insertAdjacentHTML("beforeend", createMarkup(products));
+refs.list.addEventListener("click", handleAdd);
+
+function handleAdd(event) {
+  if (!event.target.classList.contains("js-add")) {
+    // виходимо з ф-ції якщо клікнули не на кнопку
+    return;
+  }
+
+  const product = event.target.closest(".js-product"); // отримаємо посилання на всю лішку
+
+  const productId = Number(product.dataset.id); // через дата атрибут отримали id поточного товару
+
+  const currentProduct = products.find(({ id }) => id === productId); // знайшли обʼєкт поточного товару в масиві всіх товарів за id
+  console.log(currentProduct);
+
+  const checkoutProducts =
+    JSON.parse(localStorage.getItem(PRODUCT_LS_KEY)) ?? []; // робимо перевірку, якщо в локалстореджі є товари, то записуємо масив товарів у checkoutProducts, якщо ж товарів немає, ми отримаємо null, і за допомогою оператору ??(null, undefined - негатив) запишемо у константу checkoutProducts новий пустий масив
+
+  const newProductIdx = checkoutProducts.findIndex(
+    ({ id }) => id === productId
+  ); // знаходимо індекс такого ж товару з масиву корзини (якщо такого товару немає - повертає -1)
+
+  if (newProductIdx !== -1) {
+    // якщо це існуючий продукт
+    checkoutProducts[newProductIdx].quantity += 1; // збільшую кількість товарів на 1
+  } else {
+    // новий продукт
+    currentProduct.quantity = 1; // для нового товару кількість = 1
+    checkoutProducts.push(currentProduct);
+  }
+
+  localStorage.setItem(PRODUCT_LS_KEY, JSON.stringify(checkoutProducts));
+}
