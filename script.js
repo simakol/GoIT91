@@ -42,6 +42,7 @@
 // Приклад використання setInterval та setTimeout
 // Створимо блок з рекламою яка зникне через 10 секунд
 
+
 // const refs = {
 //   content: document.querySelector(".js-content"),
 //   text: document.querySelector(".js-text"),
@@ -76,7 +77,7 @@
 // const diff = currentDate - targetDate;
 // console.log(currentDate);
 // console.log(targetDate);
-// console.log(diff);
+// console.log(diff / 1000 / 60 /60 / 24);
 
 // Практика
 // Потрібно створити два приклади годинника (Електронний та механічний)
@@ -126,12 +127,13 @@ const namesOfMonth = [
 4. розпихуємо інформацію по відповідним блокам в розмітці за допомогою textContent
 
 */
-countTime();
+countTime()
 setInterval(countTime, 1000);
 
-function countTime() {
+function countTime () {
   const currentDate = new Date();
-
+  // console.log(currentDate);
+  
   const time = {
     day: currentDate.getDay(),
     date: currentDate.getDate(),
@@ -140,22 +142,22 @@ function countTime() {
     hours: currentDate.getHours(),
     minutes: currentDate.getMinutes(),
     seconds: currentDate.getSeconds(),
-  };
+  }
 
-  const localeTime = currentDate.toLocaleTimeString("uk-UA");
-
+  const localTime = currentDate.toLocaleTimeString("uk-UA");
+  console.log(localTime);
+  
   refs.day.textContent = arrDay[time.day];
   refs.date.textContent = time.date;
   refs.month.textContent = namesOfMonth[time.month];
   refs.year.textContent = time.year;
-  refs.clock.textContent = `Поточний час: ${localeTime}`;
+  refs.clock.textContent = `Поточкий час ${localTime}`;
 
-  const secondsDeg = (360 / 60) * time.seconds;
-  const minutesDeg = (360 / 60) * time.minutes;
-  const hoursDeg = (360 / 12) * time.hours + minutesDeg / 12;
-  //(360 / 12) * time.hours +  (360 / 12 / 60) * time.minutes
+  const secondDeg = (360/60) * time.seconds;
+  const minutesDeg = (360/60) * time.minutes;
+  const hoursDeg = (360/12) * time.hours + (360/ 12/ 60) * time.minutes;
 
-  refs.seconds.style.transform = `rotate(${secondsDeg}deg)`;
-  refs.minutes.style.transform = `rotate(${minutesDeg}deg)`;
-  refs.hours.style.transform = `rotate(${hoursDeg}deg)`;
-}
+  refs.seconds.style.transform = `rotate(${secondDeg}deg)`
+  refs.minutes.style.transform = `rotate(${minutesDeg}deg)`
+  refs.hours.style.transform = `rotate(${hoursDeg}deg)`
+  }
