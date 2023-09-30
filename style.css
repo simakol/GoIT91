@@ -36,6 +36,12 @@
   background-color: #0056b3;
   transform: scale(1.05);
 }
+
+.load-more:disabled {
+  background-color: #c1c1c1;
+  cursor: not-allowed;
+}
+
 .movie-card {
   position: relative;
   width: 300px;
