@@ -82,82 +82,122 @@
 // Практика
 // Потрібно створити два приклади годинника (Електронний та механічний)
 
-const refs = {
-  day: document.querySelector(".date-day"),
-  date: document.querySelector(".date"),
-  month: document.querySelector(".date-month"),
-  year: document.querySelector(".date-year"),
-  clock: document.querySelector(".digital-clock"),
-  seconds: document.querySelector(".clock-seconds__arrow"),
-  minutes: document.querySelector(".clock-minutes__arrow"),
-  hours: document.querySelector(".clock-hours__arrow"),
-};
+// const refs = {
+//   day: document.querySelector(".date-day"),
+//   date: document.querySelector(".date"),
+//   month: document.querySelector(".date-month"),
+//   year: document.querySelector(".date-year"),
+//   clock: document.querySelector(".digital-clock"),
+//   seconds: document.querySelector(".clock-seconds__arrow"),
+//   minutes: document.querySelector(".clock-minutes__arrow"),
+//   hours: document.querySelector(".clock-hours__arrow"),
+// };
 
-const arrDay = [
-  "Неділя",
-  "Понеділок",
-  "Вівторок",
-  "Середа",
-  "Четвер",
-  "П`ятниця",
-  "Субота",
-];
+// const arrDay = [
+//   "Неділя",
+//   "Понеділок",
+//   "Вівторок",
+//   "Середа",
+//   "Четвер",
+//   "П`ятниця",
+//   "Субота",
+// ];
 
-const namesOfMonth = [
-  "Січень",
-  "Лютий",
-  "Березень",
-  "Квітень",
-  "Травень",
-  "Червень",
-  "Липень",
-  "Серпень",
-  "Вересень",
-  "Жовтень",
-  "Листопад",
-  "Грудень",
-];
+// const namesOfMonth = [
+//   "Січень",
+//   "Лютий",
+//   "Березень",
+//   "Квітень",
+//   "Травень",
+//   "Червень",
+//   "Липень",
+//   "Серпень",
+//   "Вересень",
+//   "Жовтень",
+//   "Листопад",
+//   "Грудень",
+// ];
 
-/*
-цифровий:
+// /*
+// цифровий:
 
-1. запускаємо інтервал кожну секунду
-2. створити поточну дату
-3. з поточної дати беремо все, що нам потрібно(день тижня, день місяця, місяць, рік, години, хвилини і секунди)
-4. розпихуємо інформацію по відповідним блокам в розмітці за допомогою textContent
+// 1. запускаємо інтервал кожну секунду
+// 2. створити поточну дату
+// 3. з поточної дати беремо все, що нам потрібно(день тижня, день місяця, місяць, рік, години, хвилини і секунди)
+// 4. розпихуємо інформацію по відповідним блокам в розмітці за допомогою textContent
 
-*/
-countTime()
-setInterval(countTime, 1000);
+// */
+// countTime()
+// setInterval(countTime, 1000);
 
-function countTime () {
-  const currentDate = new Date();
-  // console.log(currentDate);
+// function countTime () {
+//   const currentDate = new Date();
+//   // console.log(currentDate);
   
-  const time = {
-    day: currentDate.getDay(),
-    date: currentDate.getDate(),
-    month: currentDate.getMonth(),
-    year: currentDate.getFullYear(),
-    hours: currentDate.getHours(),
-    minutes: currentDate.getMinutes(),
-    seconds: currentDate.getSeconds(),
+//   const time = {
+//     day: currentDate.getDay(),
+//     date: currentDate.getDate(),
+//     month: currentDate.getMonth(),
+//     year: currentDate.getFullYear(),
+//     hours: currentDate.getHours(),
+//     minutes: currentDate.getMinutes(),
+//     seconds: currentDate.getSeconds(),
+//   }
+
+//   const localTime = currentDate.toLocaleTimeString("uk-UA");
+//   console.log(localTime);
+  
+//   refs.day.textContent = arrDay[time.day];
+//   refs.date.textContent = time.date;
+//   refs.month.textContent = namesOfMonth[time.month];
+//   refs.year.textContent = time.year;
+//   refs.clock.textContent = `Поточкий час ${localTime}`;
+
+//   const secondDeg = (360/60) * time.seconds;
+//   const minutesDeg = (360/60) * time.minutes;
+//   const hoursDeg = (360/12) * time.hours + (360/ 12/ 60) * time.minutes;
+
+//   refs.seconds.style.transform = `rotate(${secondDeg}deg)`
+//   refs.minutes.style.transform = `rotate(${minutesDeg}deg)`
+//   refs.hours.style.transform = `rotate(${hoursDeg}deg)`
+//   }
+
+  const timer = {
+    start (){
+      const startTime = Date.now();
+
+      setInterval(()=>{
+        const currentTime = Date.now();
+        const deltaTame = currentTime - startTime;
+        const  { hours, mins, secs } = getTimeComponents(deltaTame);
+
+
+        // console.log(`${hours}:${mins}:${secs}`);
+      }, 1000)
+    }
+  }
+  timer.start();
+
+
+
+   /*
+   * Принимает число, приводит к строке и добавляет в начало 0 если число меньше 2-х знаков
+   */
+  function pad(value) {
+    return String(value).padStart(2, '0');
   }
 
-  const localTime = currentDate.toLocaleTimeString("uk-UA");
-  console.log(localTime);
-  
-  refs.day.textContent = arrDay[time.day];
-  refs.date.textContent = time.date;
-  refs.month.textContent = namesOfMonth[time.month];
-  refs.year.textContent = time.year;
-  refs.clock.textContent = `Поточкий час ${localTime}`;
 
-  const secondDeg = (360/60) * time.seconds;
-  const minutesDeg = (360/60) * time.minutes;
-  const hoursDeg = (360/12) * time.hours + (360/ 12/ 60) * time.minutes;
+  /*
+   * - Принимает время в миллисекундах
+   * - Высчитывает сколько в них вмещается часов/минут/секунд
+   * - Возвращает обьект со свойствами hours, mins, secs
+   * - Адская копипаста со стека 💩
+   */
+  function getTimeComponents(time) {
+    const hours = pad(Math.floor((time % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)));
+    const mins = pad(Math.floor((time % (1000 * 60 * 60)) / (1000 * 60)));
+    const secs = pad(Math.floor((time % (1000 * 60)) / 1000));
 
-  refs.seconds.style.transform = `rotate(${secondDeg}deg)`
-  refs.minutes.style.transform = `rotate(${minutesDeg}deg)`
-  refs.hours.style.transform = `rotate(${hoursDeg}deg)`
+    return { hours, mins, secs };
   }
