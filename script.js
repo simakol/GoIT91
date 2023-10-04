@@ -182,3 +182,39 @@
 
 // Завдання - 2.
 // Реалізуй сторінку для власника бізнесу - після того, як потрапляємо на сторінку потрібно отримати з бази даних всі заявки, які були залишені користувачами
+
+/*
+1. отримуємо посилання на форму
+2. вішаємо слухач подій на форму по події submit
+  2.1. привент дефолт
+  2.2. отримаємо послання на елементи форми через form.elements
+  2.3. створюємо обʼєкт, який потім запишемо у базу з значеннями наших полів
+  2.4. створюємо пост запит і передаємо туди цей обʼєкт (окрема ф-ція)
+*/
+
+const refs = {
+  form: document.querySelector(".js-question"),
+};
+
+refs.form.addEventListener("submit", handleSubmit);
+
+function handleSubmit(event) {
+  event.preventDefault();
+  const { userName, phone, email, question } = event.currentTarget.elements;
+
+  const userData = {
+    name: userName.value,
+    phone: phone.value,
+    email: email.value,
+    comment: question.value,
+  };
+
+  serviceQuestion(userData)
+    .then(() => alert("Thank you!"))
+    .catch(console.log)
+    .finally(() => refs.form.reset());
+}
+
+function serviceQuestion(data) {
+  return axios.post("http://127.0.0.1:3000/api/question", data);
+}
