@@ -7,6 +7,20 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
+    <a href="./questions.html">Go to the Questions</a>
+    <form action="submit" class="contact-form js-question">
+      <input type="text" required name="userName" placeholder="Name" />
+      <input type="tel" required name="phone" placeholder="Phone" />
+      <input type="email" required name="email" placeholder="Email" />
+      <textarea
+        name="question"
+        cols="30"
+        rows="10"
+        placeholder="Your question"
+      ></textarea>
+      <button>Send</button>
+    </form>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script src="script.js"></script>
   </body>
 </html>
