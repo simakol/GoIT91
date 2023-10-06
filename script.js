@@ -171,7 +171,6 @@
 // }
 // serviceCountries();
 
-
 // ********************* Практика ********************* \\
 // Створи додаток для туристичного агенства
 // Користувач має форму в яку може додавати довільну кількість полів
@@ -181,3 +180,118 @@
 // Використовуй паралельні запити
 // Бекенд для пошуку країн https://restcountries.com/
 // Бекенд для прогнозу погоди  https://www.weatherapi.com/docs/   КЛЮЧ ВАЛІДНИЙ 21 ДЕНЬ !!!!!
+
+/*
+1. отримаємо рефси
+2. вішаємо слухач по кліку на кнопку додавання нових полів
+    2.1. відмальовуємо нові інпути для країн
+3. вішаємо слухач на сабміт форми
+    3.1. викликаємо превент дефолт + відключаємо кнопку (disabled)
+    3.2. збираємо інфу з полів (тобто масив всіх країн)
+    3.3. приберемо з масиву країн пусті країни + видалимо зайві пробіли (.trim())
+    3.4. робимо запит на сервер по столицям (окрема ф-ція) 
+    3.5. робимо запит на сервер по погоді на основі столиць (окрема ф-ція)
+    3.6. малюємо розмітку на основі масиву погоди
+    3.7. очищаємо форму + включаємо кнопку (блок файналі)
+4. опишемо ф-цію для запиту на столиці
+    4.1. робимо паралельний запит (меп масиву -> масив промісів -> Promise.allSettled -> фільтруємо за станом промісу, залишаємо тільки успішні -> витягуємо назви столиць методом map)
+5. опишемо ф-цію для запиту на погоди по столицям
+    5.1. роблю паралельний запит (меп масиву -> масив промісів -> Promise.allSettled -> фільтруємо за станом промісу, залишаємо тільки успішні -> витягуємо інфу про погоду)
+*/
+
+const refs = {
+  form: document.querySelector(".js-search"),
+  searchBtn: document.querySelector(".js-search-btn"),
+  formContainer: document.querySelector(".js-form-container"),
+  addCountry: document.querySelector(".js-add"),
+  weatherList: document.querySelector(".js-list"),
+};
+
+refs.addCountry.addEventListener("click", handleAdd);
+refs.form.addEventListener("submit", handleSearch);
+
+function handleAdd() {
+  refs.formContainer.insertAdjacentHTML(
+    "beforeend",
+    '<input type="text" name="country" />'
+  );
+}
+
+async function handleSearch(event) {
+  event.preventDefault();
+  refs.searchBtn.disabled = true;
+
+  const formData = new FormData(event.currentTarget);
+  const countries = formData
+    .getAll("country")
+    .map((el) => el.trim())
+    .filter((el) => el);
+
+  try {
+    const capitals = await serviceCountries(countries);
+    const weather = await serviceWeather(capitals);
+
+    refs.weatherList.innerHTML = createMarkup(weather);
+  } catch (err) {
+    console.log(err);
+  } finally {
+    refs.form.reset();
+    refs.searchBtn.disabled = false;
+  }
+}
+
+async function serviceCountries(countries) {
+  const BASE_URL = "https://restcountries.com/v3.1/name/";
+  const responses = countries.map(async (country) => {
+    const resp = await axios.get(`${BASE_URL}${country}`);
+    return resp.data;
+  });
+
+  const data = await Promise.allSettled(responses);
+
+  return data
+    .filter(({ status }) => status === "fulfilled")
+    .map(({ value }) => value[0].capital[0]);
+}
+
+async function serviceWeather(capitals) {
+  const BASE_URL = "http://api.weatherapi.com/v1";
+  const END_POINT = "/current.json";
+  const API_KEY = "66f9e81543404d02beb160521230808";
+
+  const responses = capitals.map(async (capital) => {
+    const resp = await axios.get(
+      `${BASE_URL}${END_POINT}?key=${API_KEY}&q=${capital}&lang=uk`
+    );
+    return resp.data;
+  });
+
+  const data = await Promise.allSettled(responses);
+
+  return data
+    .filter(({ status }) => status === "fulfilled")
+    .map(({ value: { current, location } }) => {
+      const { name, country } = location;
+      const {
+        condition: { text, icon },
+        temp_c,
+      } = current;
+
+      return { name, country, text, icon, temp_c };
+    });
+}
+
+function createMarkup(arr) {
+  return arr
+    .map(
+      ({ name, country, text, icon, temp_c }) => `
+      <li>
+        <img src="${icon}" alt="${text}" />
+        <h2>${country}</h2>
+        <h2>${name}</h2>
+        <p>${text}</p>
+        <p>${temp_c}</p>
+      </li>`
+    )
+    .join("");
+}
